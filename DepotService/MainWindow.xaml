@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DepotService"
         mc:Ignorable="d"
-        Title="Innomea Depot Paket Manager" Height="450" Width="800">
+        Title="Innomea Depot Paket Manager"
+        Height="450"
+        Width="800">
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
@@ -58,7 +61,6 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
     </Window.Resources>
-    <!-- Set DataContext in code-behind (MainWindow.xaml.cs) -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="195" />
@@ -66,78 +68,91 @@
             <RowDefinition />
             <RowDefinition Height="Auto" MinHeight="70.04" />
         </Grid.RowDefinitions>
+
+        <!-- Header Section -->
         <Border Grid.Row="0"
-            BorderBrush="{StaticResource BorderLight}"
-            BorderThickness="0,0,0,1"
-            Padding="24,20">
+                BorderBrush="{StaticResource BorderLight}"
+                BorderThickness="0,0,0,1"
+                Padding="24,20">
             <Grid Margin="0,0,0,24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+
+                <!-- Depot Counter -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
                     <Border Background="{StaticResource BackgroundTertiary}"
-                        CornerRadius="8"
-                        Padding="16,8"
-                        Margin="0,0,12,0" Height="34">
-                        <StackPanel >
+                            CornerRadius="8"
+                            Padding="16,8"
+                            Margin="0,0,12,0"
+                            Height="34">
+                        <StackPanel>
                             <TextBlock Text="Depots"
-                                   FontSize="14"
-                                   Foreground="{StaticResource TextSecondary}"
-                                   Margin="0,0,8,0" Height="20" FontWeight="Bold"/>
+                                       FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Margin="0,0,8,0"
+                                       Height="20"
+                                       FontWeight="Bold"/>
                             <TextBlock Text="{Binding Depots.Count}"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   />
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
+
+                <!-- Search Box -->
                 <Grid Grid.Row="1" Height="44">
-                    <!-- TextBox mit Links-Padding, damit Icon nicht überlappt -->
                     <TextBox Style="{StaticResource ModernTextBox}"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Padding="40,0,12,0"
-                             VerticalContentAlignment="Center" Margin="0,0,0,10" />
-                    <!-- Lupe-Icon links innen; links ausrichten, oben drüber legen -->
-                    <Viewbox Width="18" Height="18"
+                             VerticalContentAlignment="Center"
+                             Margin="0,0,0,10" />
+
+                    <!-- Search Icon -->
+                    <Viewbox Width="18"
+                             Height="18"
                              VerticalAlignment="Center"
                              HorizontalAlignment="Left"
                              Margin="12,0,0,0"
                              IsHitTestVisible="False"
                              Panel.ZIndex="1">
                         <Canvas Width="24" Height="40">
-                            <Path Data="M15.5,14h-0.79l-0.28-0.27
-                                        C15.41,12.59,16,11.11,16,9.5
-                                        C16,5.91,13.09,3,9.5,3
-                                        S3,5.91,3,9.5
-                                        S5.91,16,9.5,16
-                                        c1.61,0,3.09-0.59,4.23-1.57
-                                        l0.27,0.28v0.79l5,4.99L20.49,19
-                                        L15.5,14z M9.5,14C7.01,14,5,11.99,5,9.5
-                                        S7.01,5,9.5,5S14,7.01,14,9.5
-                                        S11.99,14,9.5,14z"
-                                  Fill="{StaticResource TextTertiary}" Stretch="Uniform" Height="37" Canvas.Top="-7.681" Width="53" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="-6.115"/>
+                            <Path Data="M15.5,14h-0.79l-0.28-0.27 C15.41,12.59,16,11.11,16,9.5 C16,5.91,13.09,3,9.5,3 S3,5.91,3,9.5 S5.91,16,9.5,16 c1.61,0,3.09-0.59,4.23-1.57 l0.27,0.28v0.79l5,4.99L20.49,19 L15.5,14z M9.5,14C7.01,14,5,11.99,5,9.5 S7.01,5,9.5,5S14,7.01,14,9.5 S11.99,14,9.5,14z"
+                                  Fill="{StaticResource TextTertiary}"
+                                  Stretch="Uniform"
+                                  Height="37"
+                                  Canvas.Top="-7.681"
+                                  Width="53"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  Canvas.Left="-6.115"/>
                         </Canvas>
                     </Viewbox>
                 </Grid>
             </Grid>
         </Border>
 
-        <Border
-                BorderBrush="{StaticResource BorderLight}"
+        <!-- Filter and Action Bar -->
+        <Border BorderBrush="{StaticResource BorderLight}"
                 BorderThickness="0,0,0,1"
                 Padding="24,16"
-                Background="{StaticResource BackgroundSecondary}" Margin="0,114,0,0" Height="81" VerticalAlignment="Top">
+                Background="{StaticResource BackgroundSecondary}"
+                Margin="0,114,0,0"
+                Height="81"
+                VerticalAlignment="Top">
             <Grid Margin="0,0,-15,9">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="181"/>
                     <ColumnDefinition Width="365"/>
                     <ColumnDefinition Width="Auto" MinWidth="215.183"/>
                 </Grid.ColumnDefinitions>
-                <!-- Links: Filter-Icon + Popup + ausgewählte Standorte -->
+
+                <!-- Location Filter Section -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,4,60,5">
+                    <!-- Filter Toggle Button -->
                     <ToggleButton x:Name="LocationFilterToggle"
                                   IsChecked="{Binding IsFilterPopupOpen, Mode=TwoWay}"
                                   VerticalAlignment="Center"
@@ -146,10 +161,13 @@
                         <Viewbox Width="16" Height="16">
                             <Canvas Width="24" Height="24">
                                 <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                      Fill="{StaticResource TextPrimary}" Stretch="Uniform" />
+                                      Fill="{StaticResource TextPrimary}"
+                                      Stretch="Uniform" />
                             </Canvas>
                         </Viewbox>
                     </ToggleButton>
+
+                    <!-- Filter Popup -->
                     <Popup IsOpen="{Binding IsFilterPopupOpen, Mode=TwoWay}"
                            PlacementTarget="{Binding ElementName=LocationFilterToggle}"
                            Placement="Bottom"
@@ -162,6 +180,7 @@
                                 Padding="12"
                                 Width="300">
                             <StackPanel>
+                                <!-- Select All Checkbox -->
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
                                     <CheckBox Content="Alle auswählen"
                                               IsThreeState="True"
@@ -172,6 +191,8 @@
                                                Margin="8,0,0,0"
                                                VerticalAlignment="Center" />
                                 </StackPanel>
+
+                                <!-- Location List -->
                                 <TextBlock Text="Standorte" FontWeight="SemiBold" Margin="0,0,0,8" />
                                 <ScrollViewer Height="180">
                                     <ItemsControl ItemsSource="{Binding Locations}">
@@ -184,14 +205,19 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </ScrollViewer>
+
+                                <!-- Clear Filter Button -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
                                     <Button Content="Löschen" Command="{Binding ClearFilterCommand}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
                     </Popup>
-                    <!-- kleine Anzeige der aktiven Standort‑Chips -->
-                    <ItemsControl ItemsSource="{Binding SelectedLocations}" Margin="8,0,0,0" VerticalAlignment="Center">
+
+                    <!-- Selected Location Chips -->
+                    <ItemsControl ItemsSource="{Binding SelectedLocations}"
+                                  Margin="8,0,0,0"
+                                  VerticalAlignment="Center">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -204,7 +230,10 @@
                                         Padding="8,4"
                                         Margin="4,0,0,0">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimary}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Name}"
+                                                   Foreground="{StaticResource TextPrimary}"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center" />
                                         <Button Content="✕"
                                                 Command="{Binding DataContext.RemoveLocationCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                                 CommandParameter="{Binding}"
@@ -218,18 +247,22 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
+
+                <!-- Action Buttons -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="2,1,2,1">
                     <Button Content="📦 verteilen"
-                    Command="{Binding SyncAllCommand}"
-                    Padding="20,10"
-                    Margin="0,0,12,0" />
+                            Command="{Binding SyncAllCommand}"
+                            Padding="20,10"
+                            Margin="0,0,12,0" />
                     <Button Content="🔄 Refresh"
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource SecondaryButton}"
-                    Padding="16,10" Width="92" />
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Padding="16,10"
+                            Width="92" />
                 </StackPanel>
             </Grid>
         </Border>
+        <!-- Data Grid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Depots}"
                   Style="{StaticResource ModernDataGrid}"
@@ -242,7 +275,8 @@
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   CanUserAddRows="False"
                   SelectionMode="Extended"
-                  SelectionUnit="FullRow" SelectionChanged="DataGrid_SelectionChanged">
+                  SelectionUnit="FullRow"
+                  SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <!-- Checkbox Column -->
                 <DataGridTemplateColumn Width="60">
@@ -260,25 +294,30 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <!-- Computer Column with ToggleButton using Path icon -->
+                <!-- Computer Column -->
                 <DataGridTextColumn Binding="{Binding Computer}"
                                     Width="160"
                                     IsReadOnly="True">
                     <DataGridTextColumn.HeaderTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Computer" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Computer"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           VerticalAlignment="Center"/>
                                 <ToggleButton ToolTip="Filter Computer"
                                               Background="Transparent"
                                               BorderThickness="0"
                                               Margin="8,0,0,0"
-                                              Width="26" Height="26"
+                                              Width="26"
+                                              Height="26"
                                               VerticalAlignment="Center"
                                               IsChecked="{Binding FilterComputerEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}">
                                     <Viewbox Width="16" Height="16">
                                         <Canvas Width="24" Height="24">
                                             <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                                  Fill="{StaticResource TextPrimary}" Stretch="Uniform" />
+                                                  Fill="{StaticResource TextPrimary}"
+                                                  Stretch="Uniform" />
                                         </Canvas>
                                     </Viewbox>
                                 </ToggleButton>
@@ -293,25 +332,30 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- Job Name Column with ToggleButton using Path icon -->
+                <!-- Job Name Column -->
                 <DataGridTextColumn Binding="{Binding JobName}"
                                     Width="180"
                                     IsReadOnly="True">
                     <DataGridTextColumn.HeaderTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Job Name" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Job Name"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           VerticalAlignment="Center"/>
                                 <ToggleButton ToolTip="Filter Job Name"
                                               Background="Transparent"
                                               BorderThickness="0"
                                               Margin="8,0,0,0"
-                                              Width="26" Height="26"
+                                              Width="26"
+                                              Height="26"
                                               VerticalAlignment="Center"
                                               IsChecked="{Binding FilterJobNameEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}">
                                     <Viewbox Width="16" Height="16">
                                         <Canvas Width="24" Height="24">
                                             <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                                  Fill="{StaticResource TextPrimary}" Stretch="Uniform" />
+                                                  Fill="{StaticResource TextPrimary}"
+                                                  Stretch="Uniform" />
                                         </Canvas>
                                     </Viewbox>
                                 </ToggleButton>
@@ -336,7 +380,8 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <!-- Sync Status Column with Badge -->
+
+                <!-- Status Column -->
                 <DataGridTemplateColumn Header="Status" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -365,8 +410,8 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8" Height="8"
-                                             
+                                    <Ellipse Width="8"
+                                             Height="8"
                                              VerticalAlignment="Center"
                                              Margin="0,0,6,0" />
                                     <TextBlock Text="{Binding JobResult}"
@@ -400,7 +445,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <!-- Last Start Column -->
+
+                <!-- Last Check Column -->
                 <DataGridTextColumn Header="Last Check"
                                     Binding="{Binding LastCheck}"
                                     Width="120"
@@ -412,7 +458,6 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-
             </DataGrid.Columns>
         </DataGrid>
         <!-- Status Bar -->
@@ -426,7 +471,13 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="531,0,0,0" Width="109">
+
+                <!-- Status Message and Loading Indicator -->
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Margin="531,0,0,0"
+                            Width="109">
                     <TextBlock Text="{Binding StatusMessage}"
                                Foreground="{StaticResource TextPrimary}"
                                FontSize="13"
@@ -452,7 +503,8 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <!-- Ersetze das statische Connection-Status-Border (im Status Bar) durch das folgende -->
+
+                <!-- Connection Status -->
                 <Border Grid.Column="1"
                         x:Name="ConnectionStatusBorder"
                         CornerRadius="12"
@@ -460,7 +512,6 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Background" Value="#F3F4F6" />
-                            <!-- Default: grau -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ConnectionState}" Value="Connected">
                                     <Setter Property="Background" Value="#D1FAE5" />
@@ -475,11 +526,13 @@
                         </Style>
                     </Border.Style>
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+                        <Ellipse Width="8"
+                                 Height="8"
+                                 Margin="0,0,8,0"
+                                 VerticalAlignment="Center">
                             <Ellipse.Style>
                                 <Style TargetType="Ellipse">
                                     <Setter Property="Fill" Value="#9CA3AF" />
-                                    <!-- grau -->
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ConnectionState}" Value="Connected">
                                             <Setter Property="Fill" Value="#059669" />
@@ -501,7 +554,6 @@
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="#6B7280" />
-                                    <!-- grau -->
                                     <Setter Property="Text" Value="Empirum DB " />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ConnectionState}" Value="Connected">
