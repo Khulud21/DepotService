@@ -39,7 +39,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
+                        <Border x:Name="BorderElement"
+                                Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="4"
@@ -48,10 +49,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F9FAFB" />
+                                <Setter TargetName="BorderElement" Property="Background" Value="#F9FAFB" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#F3F4F6" />
+                                <Setter TargetName="BorderElement" Property="Background" Value="#F3F4F6" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
