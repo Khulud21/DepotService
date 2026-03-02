@@ -270,6 +270,20 @@
                     </ItemsControl>
                 </StackPanel>
 
+                <!-- Job Name Input -->
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,12,0">
+                    <TextBlock Text="Job-Name (optional)"
+                               FontSize="11"
+                               Foreground="{StaticResource TextSecondary}"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding JobNameInput, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}"
+                             Width="250"
+                             Height="32"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Leer lassen für automatische Job-Namen" />
+                </StackPanel>
+
                 <!-- Action Buttons -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="2,1,2,1">
                     <Button Content="📦 verteilen"

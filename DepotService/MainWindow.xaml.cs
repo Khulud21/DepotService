@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -37,7 +37,7 @@ namespace DepotService
             _vm = new MainViewModel(repo);
             DataContext = _vm;
 
-            Loaded += async (_, __) => await _vm.LoadAsync();
+            Loaded += async (_, __) => await _vm.InitializeAsync();
         }
 
         public bool FilterComputerEnabled
