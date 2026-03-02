@@ -37,6 +37,32 @@ namespace DepotService.ViewModels
         }
     }
 
+    public class ComputerItem : INotifyPropertyChanged
+    {
+        private bool _isSelected;
+
+        public string Name { get; set; } = "";
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly SqlRepository _repo;
@@ -45,16 +71,19 @@ namespace DepotService.ViewModels
         private bool _isLoading = false;
         private string _connectionState = "Unknown";
         private bool _isFilterPopupOpen = false;
+        private bool _isComputerFilterPopupOpen = false;
         private bool? _selectAll = false;
         private string _jobNameInput = "";
 
         public ObservableCollection<DepotItem> Depots { get; } = new();
         public ObservableCollection<LocationItem> Locations { get; } = new();
+        public ObservableCollection<ComputerItem> Computers { get; } = new();
 
         public ICommand SyncAllCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearFilterCommand { get; }
         public ICommand RemoveLocationCommand { get; }
+        public ICommand RemoveComputerCommand { get; }
 
         public MainViewModel(SqlRepository repo)
         {
@@ -63,6 +92,7 @@ namespace DepotService.ViewModels
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearFilterCommand = new RelayCommand(async _ => { ClearFilter(); await Task.CompletedTask; });
             RemoveLocationCommand = new RelayCommand(async location => { RemoveLocation(location as LocationItem); await Task.CompletedTask; });
+            RemoveComputerCommand = new RelayCommand(async computer => { RemoveComputer(computer as ComputerItem); await Task.CompletedTask; });
         }
 
         #region Properties
@@ -146,6 +176,19 @@ namespace DepotService.ViewModels
             }
         }
 
+        public bool IsComputerFilterPopupOpen
+        {
+            get => _isComputerFilterPopupOpen;
+            set
+            {
+                if (_isComputerFilterPopupOpen != value)
+                {
+                    _isComputerFilterPopupOpen = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool? SelectAll
         {
             get => _selectAll;
@@ -191,10 +234,40 @@ namespace DepotService.ViewModels
             }
         }
 
+        public bool? AllComputersSelected
+        {
+            get
+            {
+                var selected = Computers.Count(c => c.IsSelected);
+                if (selected == 0) return false;
+                if (selected == Computers.Count) return true;
+                return null;
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    foreach (var computer in Computers)
+                    {
+                        computer.IsSelected = value.Value;
+                    }
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedComputerCount));
+                    OnPropertyChanged(nameof(SelectedComputers));
+                    FilterDepots();
+                }
+            }
+        }
+
         public int SelectedCount => Locations.Count(l => l.IsSelected);
+
+        public int SelectedComputerCount => Computers.Count(c => c.IsSelected);
 
         public ObservableCollection<LocationItem> SelectedLocations =>
             new ObservableCollection<LocationItem>(Locations.Where(l => l.IsSelected));
+
+        public ObservableCollection<ComputerItem> SelectedComputers =>
+            new ObservableCollection<ComputerItem>(Computers.Where(c => c.IsSelected));
 
         #endregion
 
@@ -246,6 +319,25 @@ namespace DepotService.ViewModels
                     Locations.Add(locationItem);
                 }
 
+                var allDepots = await _repo.GetDepotsAsync();
+                var computers = allDepots.Select(d => d.Computer).Distinct().OrderBy(c => c).ToList();
+                Computers.Clear();
+                foreach (var comp in computers)
+                {
+                    var computerItem = new ComputerItem { Name = comp };
+                    computerItem.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(ComputerItem.IsSelected))
+                        {
+                            OnPropertyChanged(nameof(AllComputersSelected));
+                            OnPropertyChanged(nameof(SelectedComputerCount));
+                            OnPropertyChanged(nameof(SelectedComputers));
+                            FilterDepots();
+                        }
+                    };
+                    Computers.Add(computerItem);
+                }
+
                 await FilterDepots();
 
                 StatusMessage = $"{Depots.Count} Depots geladen";
@@ -272,6 +364,12 @@ namespace DepotService.ViewModels
                     : await _repo.GetDepotsAsync();
 
                 var filtered = allDepots;
+
+                var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToList();
+                if (selectedComputers.Any())
+                {
+                    filtered = filtered.Where(d => selectedComputers.Contains(d.Computer)).ToList();
+                }
 
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
@@ -345,10 +443,17 @@ namespace DepotService.ViewModels
             {
                 location.IsSelected = false;
             }
+            foreach (var computer in Computers)
+            {
+                computer.IsSelected = false;
+            }
             SearchText = "";
             OnPropertyChanged(nameof(AllLocationsSelected));
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(SelectedLocations));
+            OnPropertyChanged(nameof(AllComputersSelected));
+            OnPropertyChanged(nameof(SelectedComputerCount));
+            OnPropertyChanged(nameof(SelectedComputers));
         }
 
         private void RemoveLocation(LocationItem? location)
@@ -356,6 +461,14 @@ namespace DepotService.ViewModels
             if (location != null)
             {
                 location.IsSelected = false;
+            }
+        }
+
+        private void RemoveComputer(ComputerItem? computer)
+        {
+            if (computer != null)
+            {
+                computer.IsSelected = false;
             }
         }
 

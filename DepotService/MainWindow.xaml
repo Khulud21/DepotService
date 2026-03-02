@@ -337,28 +337,73 @@
                                     IsReadOnly="True">
                     <DataGridTextColumn.HeaderTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Computer"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimary}"
-                                           VerticalAlignment="Center"/>
-                                <ToggleButton ToolTip="Filter Computer"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              Margin="8,0,0,0"
-                                              Width="26"
-                                              Height="26"
-                                              VerticalAlignment="Center"
-                                              IsChecked="{Binding FilterComputerEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}">
-                                    <Viewbox Width="16" Height="16">
-                                        <Canvas Width="24" Height="24">
-                                            <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                                  Fill="{StaticResource TextPrimary}"
-                                                  Stretch="Uniform" />
-                                        </Canvas>
-                                    </Viewbox>
-                                </ToggleButton>
-                            </StackPanel>
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Computer"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               VerticalAlignment="Center"/>
+                                    <ToggleButton x:Name="ComputerFilterToggle"
+                                                  IsChecked="{Binding DataContext.IsComputerFilterPopupOpen, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
+                                                  ToolTip="Filter Computer"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"
+                                                  Margin="8,0,0,0"
+                                                  Width="26"
+                                                  Height="26"
+                                                  VerticalAlignment="Center">
+                                        <Viewbox Width="16" Height="16">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
+                                                      Fill="{StaticResource TextPrimary}"
+                                                      Stretch="Uniform" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </ToggleButton>
+                                </StackPanel>
+
+                                <!-- Computer Filter Popup -->
+                                <Popup IsOpen="{Binding DataContext.IsComputerFilterPopupOpen, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
+                                       PlacementTarget="{Binding ElementName=ComputerFilterToggle}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True">
+                                    <Border Background="{StaticResource BackgroundPrimary}"
+                                            BorderBrush="{StaticResource BorderLight}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="12"
+                                            Width="300">
+                                        <StackPanel>
+                                            <!-- Select All Checkbox -->
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+                                                <CheckBox Content="Alle auswählen"
+                                                          IsThreeState="True"
+                                                          IsChecked="{Binding DataContext.AllComputersSelected, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
+                                                          VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding DataContext.SelectedComputerCount, RelativeSource={RelativeSource AncestorType={x:Type Window}}, StringFormat=' ({0} ausgewählt)'}"
+                                                           Foreground="{StaticResource TextSecondary}"
+                                                           Margin="8,0,0,0"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+
+                                            <!-- Computer List -->
+                                            <TextBlock Text="Computer" FontWeight="SemiBold" Margin="0,0,0,8" />
+                                            <ScrollViewer Height="180">
+                                                <ItemsControl ItemsSource="{Binding DataContext.Computers, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox Content="{Binding Name}"
+                                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                                      Margin="0,4" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                            </Grid>
                         </DataTemplate>
                     </DataGridTextColumn.HeaderTemplate>
                     <DataGridTextColumn.ElementStyle>
