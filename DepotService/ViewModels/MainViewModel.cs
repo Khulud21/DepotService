@@ -61,8 +61,8 @@ namespace DepotService.ViewModels
             _repo = repo;
             SyncAllCommand = new RelayCommand(async _ => await SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
-            ClearFilterCommand = new RelayCommand(_ => ClearFilter());
-            RemoveLocationCommand = new RelayCommand(location => RemoveLocation(location as LocationItem));
+            ClearFilterCommand = new RelayCommand(async _ => { ClearFilter(); await Task.CompletedTask; });
+            RemoveLocationCommand = new RelayCommand(async location => { RemoveLocation(location as LocationItem); await Task.CompletedTask; });
         }
 
         #region Properties
