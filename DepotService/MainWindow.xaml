@@ -21,7 +21,7 @@
         <SolidColorBrush x:Key="TextTertiary" Color="#FF9CA3AF" />
         <SolidColorBrush x:Key="SuccessColor" Color="#FF059669" />
 
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
+        <Style x:Key="ModernTextBox" Ta"TextBox">
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderLight}"/>
             <Setter Property="Padding" Value="8"/>
