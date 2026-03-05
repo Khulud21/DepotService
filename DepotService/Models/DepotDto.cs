@@ -8,6 +8,7 @@ namespace DepotService.Models
     {
         private bool _isSelected;
         private int _status;
+        private string? _info;
 
         public int Id { get; set; }
         public string Computer { get; set; } = "";
@@ -31,7 +32,20 @@ namespace DepotService.Models
             }
         }
 
-        public string? Info { get; set; }
+        public string? Info
+        {
+            get => _info;
+            set
+            {
+                if (_info != value)
+                {
+                    _info = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Information));
+                }
+            }
+        }
+
         public string? Information => Info;
         public DateTime? CreatedTime { get; set; }
         public string? DepotSyncId { get; set; }
