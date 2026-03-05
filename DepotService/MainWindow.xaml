@@ -476,6 +476,20 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
+                <!-- Information Column -->
+                <DataGridTextColumn Header="Information"
+                                    Binding="{Binding Information}"
+                                    Width="200"
+                                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                            <Setter Property="TextWrapping" Value="NoWrap" />
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
                 <!-- Last Check Column -->
                 <DataGridTextColumn Header="Last Check"
                                     Binding="{Binding LastCheck}"
