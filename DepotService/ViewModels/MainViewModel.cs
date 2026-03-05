@@ -365,12 +365,12 @@ namespace DepotService.ViewModels
             if (obj is not DepotDto depot)
                 return false;
 
-            var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToList();
-            if (selectedLocations.Any() && !selectedLocations.Contains(depot.Domain))
+            var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToHashSet();
+            if (selectedLocations.Count > 0 && !selectedLocations.Contains(depot.Domain))
                 return false;
 
-            var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-            if (selectedComputers.Any() && !selectedComputers.Contains(depot.Computer))
+            var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToHashSet();
+            if (selectedComputers.Count > 0 && !selectedComputers.Contains(depot.Computer))
                 return false;
 
             if (!string.IsNullOrWhiteSpace(SearchText))
