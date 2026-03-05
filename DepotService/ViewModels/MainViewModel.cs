@@ -299,7 +299,7 @@ namespace DepotService.ViewModels
                 Locations.Clear();
                 foreach (var loc in locations)
                 {
-                    var locationItem = new SelectableItem(loc);
+                    var locationItem = new SelectableItem(loc) { IsSelected = true };
                     locationItem.PropertyChanged += (s, e) =>
                     {
                         if (e.PropertyName == nameof(SelectableItem.IsSelected))
@@ -317,7 +317,7 @@ namespace DepotService.ViewModels
                 Computers.Clear();
                 foreach (var comp in computers)
                 {
-                    var computerItem = new SelectableItem(comp);
+                    var computerItem = new SelectableItem(comp) { IsSelected = true };
                     computerItem.PropertyChanged += (s, e) =>
                     {
                         if (e.PropertyName == nameof(SelectableItem.IsSelected))
