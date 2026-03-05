@@ -25,7 +25,7 @@ namespace DepotService.Data
         {
             try
             {
-                await using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(_connectionString + ";Connect Timeout=5");
                 await conn.OpenAsync();
                 return (true, "Verbindung erfolgreich");
             }
