@@ -12,58 +12,6 @@ using DepotService.Models;
 
 namespace DepotService.ViewModels
 {
-    public class LocationItem : INotifyPropertyChanged
-    {
-        private bool _isSelected;
-
-        public string Name { get; set; } = "";
-
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class ComputerItem : INotifyPropertyChanged
-    {
-        private bool _isSelected;
-
-        public string Name { get; set; } = "";
-
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly EmpirumRepository _repo;
@@ -78,8 +26,8 @@ namespace DepotService.ViewModels
 
         public ObservableCollection<DepotDto> Depots { get; } = new();
         public ICollectionView DepotsView { get; private set; }
-        public ObservableCollection<LocationItem> Locations { get; } = new();
-        public ObservableCollection<ComputerItem> Computers { get; } = new();
+        public ObservableCollection<SelectableItem> Locations { get; } = new();
+        public ObservableCollection<SelectableItem> Computers { get; } = new();
         public ObservableCollection<string> JobNames { get; } = new();
 
         public ICommand SyncAllCommand { get; }
@@ -100,8 +48,8 @@ namespace DepotService.ViewModels
             RefreshCommand = new AsyncRelayCommand(_ => LoadAsync());
             ClearFilterCommand = new RelayCommand(_ => { ClearFilter(); });
             ClearComputerFilterCommand = new RelayCommand(_ => { ClearComputerFilter(); });
-            RemoveLocationCommand = new RelayCommand(location => { RemoveLocation(location as LocationItem); });
-            RemoveComputerCommand = new RelayCommand(computer => { RemoveComputer(computer as ComputerItem); });
+            RemoveLocationCommand = new RelayCommand(location => { RemoveLocation(location as SelectableItem); });
+            RemoveComputerCommand = new RelayCommand(computer => { RemoveComputer(computer as SelectableItem); });
         }
 
         #region Properties
@@ -259,11 +207,11 @@ namespace DepotService.ViewModels
 
         public int SelectedComputerCount => Computers.Count(c => c.IsSelected);
 
-        public ObservableCollection<LocationItem> SelectedLocations =>
-            new ObservableCollection<LocationItem>(Locations.Where(l => l.IsSelected));
+        public ObservableCollection<SelectableItem> SelectedLocations =>
+            new ObservableCollection<SelectableItem>(Locations.Where(l => l.IsSelected));
 
-        public ObservableCollection<ComputerItem> SelectedComputers =>
-            new ObservableCollection<ComputerItem>(Computers.Where(c => c.IsSelected));
+        public ObservableCollection<SelectableItem> SelectedComputers =>
+            new ObservableCollection<SelectableItem>(Computers.Where(c => c.IsSelected));
 
         public string SelectedJobName
         {
@@ -327,10 +275,10 @@ namespace DepotService.ViewModels
                 Locations.Clear();
                 foreach (var loc in locations)
                 {
-                    var locationItem = new LocationItem { Name = loc, IsSelected = true };
+                    var locationItem = new SelectableItem(loc);
                     locationItem.PropertyChanged += (s, e) =>
                     {
-                        if (e.PropertyName == nameof(LocationItem.IsSelected))
+                        if (e.PropertyName == nameof(SelectableItem.IsSelected))
                         {
                             OnPropertyChanged(nameof(AllLocationsSelected));
                             OnPropertyChanged(nameof(SelectedCount));
@@ -345,10 +293,10 @@ namespace DepotService.ViewModels
                 Computers.Clear();
                 foreach (var comp in computers)
                 {
-                    var computerItem = new ComputerItem { Name = comp, IsSelected = true };
+                    var computerItem = new SelectableItem(comp);
                     computerItem.PropertyChanged += (s, e) =>
                     {
-                        if (e.PropertyName == nameof(ComputerItem.IsSelected))
+                        if (e.PropertyName == nameof(SelectableItem.IsSelected))
                         {
                             OnPropertyChanged(nameof(AllComputersSelected));
                             OnPropertyChanged(nameof(SelectedComputerCount));
@@ -460,7 +408,7 @@ namespace DepotService.ViewModels
             OnPropertyChanged(nameof(SelectedComputers));
         }
 
-        private void RemoveLocation(LocationItem? location)
+        private void RemoveLocation(SelectableItem? location)
         {
             if (location != null)
             {
@@ -468,7 +416,7 @@ namespace DepotService.ViewModels
             }
         }
 
-        private void RemoveComputer(ComputerItem? computer)
+        private void RemoveComputer(SelectableItem? computer)
         {
             if (computer != null)
             {

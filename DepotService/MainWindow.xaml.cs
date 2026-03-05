@@ -33,7 +33,7 @@ namespace DepotService
                 throw new InvalidOperationException("Connection string 'DefaultConnection' fehlt in appsettings.json.");
             }
 
-            var repo = new SqlRepository(conn);
+            var repo = new EmpirumRepository(conn);
             _vm = new MainViewModel(repo);
             DataContext = _vm;
 
