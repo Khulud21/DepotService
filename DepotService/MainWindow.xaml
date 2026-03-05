@@ -21,7 +21,7 @@
         <SolidColorBrush x:Key="TextTertiary" Color="#FF9CA3AF" />
         <SolidColorBrush x:Key="SuccessColor" Color="#FF059669" />
 
-        <Style x:Key="ModernTextBox" Ta"TextBox">
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderLight}"/>
             <Setter Property="Padding" Value="8"/>
@@ -319,18 +319,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <!-- Last Check -->
-                <DataGridTextColumn Header="Last Check"
-                                    Binding="{Binding LastCheck}"
-                                    Width="120"
-                                    IsReadOnly="True">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="FontFamily" Value="Consolas" />
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
+                
 
                 <!-- Computer with Filter Popup -->
                 <DataGridTextColumn Binding="{Binding Computer}" Width="180" IsReadOnly="True">
@@ -508,6 +497,19 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+                <!-- Last Check -->
+                <DataGridTextColumn Header="Last Check"
+                    Binding="{Binding LastCheck}"
+                    Width="120"
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Consolas" />
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
 
                 <!-- Information (rechts, füllt Rest) -->
                 <DataGridTextColumn Header="Information"
