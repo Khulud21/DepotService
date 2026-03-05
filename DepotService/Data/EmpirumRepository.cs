@@ -35,18 +35,22 @@ namespace DepotService.Data
         }
 
         /// <summary>
-        /// Lädt alle Depot-Server mit Status
+        /// Lädt alle Depot-Server, die den neuen Sync unterstützen (DepotSyncId IS NOT NULL)
         /// </summary>
         public async Task<List<DepotDto>> GetDepotsAsync()
         {
             var sql = @"
 SELECT
+    id,
     Computer,
     Domain,
     LastCheck,
     Status,
-    Info
+    Info,
+    CreatedTime,
+    DepotSyncId
 FROM dbo.UEMDepotServerStatus
+WHERE DepotSyncId IS NOT NULL
 ORDER BY Domain, Computer;";
 
             var result = new List<DepotDto>();
@@ -61,13 +65,20 @@ ORDER BY Domain, Computer;";
             {
                 result.Add(new DepotDto
                 {
+                    Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Computer = reader["Computer"] as string ?? "",
                     Domain = reader["Domain"] as string ?? "",
                     LastCheck = reader["LastCheck"] != DBNull.Value
                         ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("LastCheck"))
                         : null,
                     Status = reader["Status"] as string ?? "",
-                    Info = reader["Info"] as string
+                    Info = reader["Info"] as string,
+                    CreatedTime = reader["CreatedTime"] != DBNull.Value
+                        ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("CreatedTime"))
+                        : null,
+                    DepotSyncId = reader["DepotSyncId"] != DBNull.Value
+                        ? (int?)reader.GetInt32(reader.GetOrdinal("DepotSyncId"))
+                        : null
                 });
             }
 
@@ -128,8 +139,8 @@ ORDER BY JobName;";
             var parametersJson = JsonSerializer.Serialize(parameters);
 
             var sql = @"
-INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
-VALUES (@Command, @Status, @Parameters, GETDATE());
+INSERT INTO dbo.UEMJobs (Command, Parameters)
+VALUES (@Command, @Parameters);
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             await using var conn = new SqlConnection(_connectionString);
@@ -137,7 +148,6 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             await using var cmd = new SqlCommand(sql, conn);
             cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = "StartSync" });
-            cmd.Parameters.Add(new SqlParameter("@Status", SqlDbType.Int) { Value = 0 });
             cmd.Parameters.Add(new SqlParameter("@Parameters", SqlDbType.NVarChar) { Value = parametersJson });
 
             var jobId = (int)await cmd.ExecuteScalarAsync();
