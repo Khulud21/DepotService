@@ -77,28 +77,48 @@ namespace DepotService.Data
         /// <param name="locationFilter">Standort-Filter (Domain), null für alle</param>
         public async Task<List<DepotItem>> GetDepotsAsync(string? locationFilter)
         {
+            return await GetDepotsAsync(locationFilter, false);
+        }
+
+        /// <summary>
+        /// Lädt Depot-Einträge mit optionalem Standort-Filter und Computer-Filter
+        /// </summary>
+        /// <param name="locationFilter">Standort-Filter (Domain), null für alle</param>
+        /// <param name="onlyDepotComputers">True = nur Computer die mit 'DEPOT' beginnen, False = alle</param>
+        public async Task<List<DepotItem>> GetDepotsAsync(string? locationFilter, bool onlyDepotComputers)
+        {
             try
             {
-                _logger?.LogInformation("Fetching depots with location filter: {Filter}", locationFilter ?? "None");
+                _logger?.LogInformation("Fetching depots with location filter: {Filter}, depot-only: {DepotOnly}",
+                    locationFilter ?? "None", onlyDepotComputers);
 
                 var sql = @"
 SELECT
-  d.Computer,
-  d.Domain,
-  d.Status,
-  d.LastCheck,
-  (SELECT TOP 1 s.JobName
-   FROM UEMDepotSyncStatusTable s
-   WHERE s.Computer = d.Computer
-   ORDER BY s.LastSync DESC) AS LastJobName
-FROM UEMDepotServerStatus d";
+    Computer,
+    Domain,
+    LastCheck,
+    Status,
+    Info
+FROM dbo.UEMDepotServerStatus";
+
+                var whereClauses = new List<string>();
+
+                if (onlyDepotComputers)
+                {
+                    whereClauses.Add("Computer LIKE 'DEPOT%'");
+                }
 
                 if (!string.IsNullOrWhiteSpace(locationFilter))
                 {
-                    sql += " WHERE d.Domain = @LocationFilter";
+                    whereClauses.Add("Domain = @LocationFilter");
                 }
 
-                sql += " ORDER BY d.Domain, d.Computer;";
+                if (whereClauses.Any())
+                {
+                    sql += " WHERE " + string.Join(" AND ", whereClauses);
+                }
+
+                sql += " ORDER BY Computer;";
 
                 var result = new List<DepotItem>();
                 await using var conn = new SqlConnection(_connectionString);
@@ -121,7 +141,7 @@ FROM UEMDepotServerStatus d";
                         LastCheck = reader["LastCheck"] != DBNull.Value
                             ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("LastCheck"))
                             : null,
-                        LastJobName = reader["LastJobName"] as string
+                        Info = reader["Info"] as string
                     });
                 }
 
@@ -187,6 +207,53 @@ ORDER BY Domain;";
         }
 
         /// <summary>
+        /// Lädt alle verfügbaren Job-Namen aus der Sync-Status-Tabelle
+        /// </summary>
+        public async Task<List<string>> GetAvailableJobNamesAsync()
+        {
+            try
+            {
+                _logger?.LogInformation("Fetching available job names");
+
+                var sql = @"
+SELECT DISTINCT JobName
+FROM dbo.UEMDepotSyncStatusTable
+WHERE JobName IS NOT NULL
+  AND JobName <> ''
+ORDER BY JobName;";
+
+                var result = new List<string>();
+                await using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+
+                await using var cmd = new SqlCommand(sql, conn);
+                await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+
+                while (await reader.ReadAsync())
+                {
+                    var jobName = reader["JobName"] as string;
+                    if (!string.IsNullOrWhiteSpace(jobName))
+                    {
+                        result.Add(jobName);
+                    }
+                }
+
+                _logger?.LogInformation("Found {Count} job names", result.Count);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                _logger?.LogError(ex, "SQL error while fetching job names");
+                throw new InvalidOperationException($"Fehler beim Laden der Job-Namen: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error while fetching job names");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Lädt Depots nach spezifischen Computer-Namen
         /// </summary>
         public async Task<List<DepotItem>> GetDepotsByComputersAsync(IEnumerable<string> computerNames)
@@ -203,16 +270,13 @@ ORDER BY Domain;";
 
                 var sql = @"
 SELECT
-  d.Computer,
-  d.Domain,
-  d.Status,
-  d.LastCheck,
-  (SELECT TOP 1 s.JobName
-   FROM UEMDepotSyncStatusTable s
-   WHERE s.Computer = d.Computer
-   ORDER BY s.LastSync DESC) AS LastJobName
-FROM UEMDepotServerStatus d
-WHERE d.Computer IN (" + string.Join(",", names.Select((_, i) => $"@Computer{i}")) + ");";
+    Computer,
+    Domain,
+    LastCheck,
+    Status,
+    Info
+FROM dbo.UEMDepotServerStatus
+WHERE Computer IN (" + string.Join(",", names.Select((_, i) => $"@Computer{i}")) + ");";
 
                 var result = new List<DepotItem>();
                 await using var conn = new SqlConnection(_connectionString);
@@ -235,7 +299,7 @@ WHERE d.Computer IN (" + string.Join(",", names.Select((_, i) => $"@Computer{i}"
                         LastCheck = reader["LastCheck"] != DBNull.Value
                             ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("LastCheck"))
                             : null,
-                        LastJobName = reader["LastJobName"] as string
+                        Info = reader["Info"] as string
                     });
                 }
 
@@ -272,7 +336,7 @@ WHERE d.Computer IN (" + string.Join(",", names.Select((_, i) => $"@Computer{i}"
                 var jsonParams = JsonSerializer.Serialize(parameters);
 
                 var sql = @"
-INSERT INTO UEMJobs (Command, Status, Parameters, CreatedAt)
+INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
 VALUES (@Command, @Status, @Parameters, GETDATE());
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 

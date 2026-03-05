@@ -80,6 +80,7 @@ namespace DepotService.Models
 
         public DateTime? LastCheck { get; set; }
         public string? LastJobName { get; set; }
+        public string? Info { get; set; }
 
         public string JobResult => Status switch
         {
