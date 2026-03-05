@@ -48,6 +48,7 @@ namespace DepotService.Models
                     _status = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(JobResult));
+                    OnPropertyChanged(nameof(StatusDisplay));
                 }
             }
         }
@@ -87,6 +88,15 @@ namespace DepotService.Models
             "Online" => "Success",
             "Offline" => "Error",
             _ => "Pending"
+        };
+
+        public string StatusDisplay => Status switch
+        {
+            "Online" => "✅ Online",
+            "Offline" => "❌ Offline",
+            "Waiting" => "⏳ Waiting",
+            "Running" => "🔄 Running",
+            _ => "❔ Unknown"
         };
 
         public event PropertyChangedEventHandler? PropertyChanged;
