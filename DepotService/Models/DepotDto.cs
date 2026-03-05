@@ -11,6 +11,6 @@ namespace DepotService.Models
         public int Status { get; set; }
         public string? Info { get; set; }
         public DateTime? CreatedTime { get; set; }
-        public int? DepotSyncId { get; set; }
+        public string? DepotSyncId { get; set; }
     }
 }

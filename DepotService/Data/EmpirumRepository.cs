@@ -76,9 +76,7 @@ ORDER BY Domain, Computer;";
                     CreatedTime = reader["CreatedTime"] != DBNull.Value
                         ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("CreatedTime"))
                         : null,
-                    DepotSyncId = reader["DepotSyncId"] != DBNull.Value
-                        ? (int?)reader.GetInt32(reader.GetOrdinal("DepotSyncId"))
-                        : null
+                    DepotSyncId = reader["DepotSyncId"] as string
                 });
             }
 
