@@ -81,6 +81,7 @@ namespace DepotService.ViewModels
         public ICommand SyncAllCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearFilterCommand { get; }
+        public ICommand ClearComputerFilterCommand { get; }
         public ICommand RemoveLocationCommand { get; }
         public ICommand RemoveComputerCommand { get; }
 
@@ -90,6 +91,7 @@ namespace DepotService.ViewModels
             SyncAllCommand = new RelayCommand(async _ => await SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearFilterCommand = new RelayCommand(async _ => { ClearFilter(); await Task.CompletedTask; });
+            ClearComputerFilterCommand = new RelayCommand(async _ => { ClearComputerFilter(); await Task.CompletedTask; });
             RemoveLocationCommand = new RelayCommand(async location => { RemoveLocation(location as LocationItem); await Task.CompletedTask; });
             RemoveComputerCommand = new RelayCommand(async computer => { RemoveComputer(computer as ComputerItem); await Task.CompletedTask; });
         }
@@ -453,6 +455,17 @@ namespace DepotService.ViewModels
             {
                 computer.IsSelected = false;
             }
+        }
+
+        private void ClearComputerFilter()
+        {
+            foreach (var computer in Computers)
+            {
+                computer.IsSelected = false;
+            }
+            OnPropertyChanged(nameof(AllComputersSelected));
+            OnPropertyChanged(nameof(SelectedComputerCount));
+            OnPropertyChanged(nameof(SelectedComputers));
         }
 
         #endregion
