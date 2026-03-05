@@ -309,7 +309,7 @@ namespace DepotService.ViewModels
                             OnPropertyChanged(nameof(AllLocationsSelected));
                             OnPropertyChanged(nameof(SelectedCount));
                             OnPropertyChanged(nameof(SelectedLocations));
-                            _ = FilterDepots();
+                            DepotsView.Refresh();
                         }
                     };
                     Locations.Add(locationItem);
@@ -333,8 +333,13 @@ namespace DepotService.ViewModels
                     Computers.Add(computerItem);
                 }
 
-                await FilterDepots();
+                Depots.Clear();
+                foreach (var depot in allDepots)
+                {
+                    Depots.Add(depot);
+                }
 
+                DepotsView.Refresh();
                 StatusMessage = $"{Depots.Count} Depots geladen";
             }
             catch (Exception ex)
@@ -353,6 +358,10 @@ namespace DepotService.ViewModels
             if (obj is not DepotDto depot)
                 return false;
 
+            var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToList();
+            if (selectedLocations.Any() && !selectedLocations.Contains(depot.Domain))
+                return false;
+
             var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToList();
             if (selectedComputers.Any() && !selectedComputers.Contains(depot.Computer))
                 return false;
@@ -367,31 +376,6 @@ namespace DepotService.ViewModels
             return true;
         }
 
-        private async Task FilterDepots()
-        {
-            try
-            {
-                var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToHashSet();
-                var allDepots = await _repo.GetDepotsAsync();
-
-                var filteredDepots = selectedLocations.Any()
-                    ? allDepots.Where(d => selectedLocations.Contains(d.Domain)).ToList()
-                    : allDepots;
-
-                Depots.Clear();
-                foreach (var depot in filteredDepots)
-                {
-                    Depots.Add(depot);
-                }
-
-                DepotsView.Refresh();
-                OnPropertyChanged(nameof(Depots));
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Filterfehler: {ex.Message}";
-            }
-        }
 
         public async Task SyncSelectedAsync()
         {
