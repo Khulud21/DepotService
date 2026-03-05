@@ -86,7 +86,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="195" />
-            <RowDefinition Height="Auto" MinHeight="24" />
+            <RowDefinition Height="Auto" MinHeight="16" />
             <RowDefinition />
             <RowDefinition Height="Auto" MinHeight="70.04" />
         </Grid.RowDefinitions>
@@ -167,12 +167,12 @@
                 VerticalAlignment="Top">
             <Grid Margin="0,0,-15,9">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="181"/>
-                    <ColumnDefinition Width="Auto" MinWidth="215.183"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" MinWidth="605" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Location Filter Section -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,4,60,5">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,4,60,5">
                     <!-- Filter Toggle Button -->
                     <ToggleButton x:Name="LocationFilterToggle"
                                   IsChecked="{Binding IsFilterPopupOpen, Mode=TwoWay}"
@@ -269,8 +269,9 @@
                     </ItemsControl>
                 </StackPanel>
 
+
                 <!-- Action Buttons -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="2,1,2,1">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Height="37" Margin="368,0,0,0" Width="220">
                     <Button Content="📦 verteilen"
                             Command="{Binding SyncAllCommand}"
                             Style="{StaticResource SecondaryButton}"
@@ -280,13 +281,13 @@
                             Command="{Binding RefreshCommand}"
                             Style="{StaticResource SecondaryButton}"
                             Padding="16,10"
-                            Width="92" />
+                            Width="99" />
                 </StackPanel>
             </Grid>
         </Border>
         <!-- Data Grid -->
         <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Depots}"
+                  ItemsSource="{Binding DepotsView}"
                   Style="{StaticResource ModernDataGrid}"
                   ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
                   RowStyle="{StaticResource DataGridRowStyle}"
@@ -297,13 +298,15 @@
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   CanUserAddRows="False"
                   SelectionMode="Extended"
-                  SelectionUnit="FullRow"
-                  SelectionChanged="DataGrid_SelectionChanged">
+                  SelectionUnit="FullRow">
+
             <DataGrid.Columns>
+
                 <!-- Checkbox Column -->
                 <DataGridTemplateColumn Width="60">
                     <DataGridTemplateColumn.Header>
-                        <CheckBox IsChecked="{Binding DataContext.SelectAll, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        <CheckBox IsThreeState="True"
+                                  IsChecked="{Binding SelectAll, Mode=TwoWay}"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center" />
                     </DataGridTemplateColumn.Header>
@@ -316,39 +319,58 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <!-- Computer Column -->
-                <DataGridTextColumn Binding="{Binding Computer}"
-                                    Width="160"
+                <!-- Last Check -->
+                <DataGridTextColumn Header="Last Check"
+                                    Binding="{Binding LastCheck}"
+                                    Width="120"
                                     IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Consolas" />
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Computer with Filter Popup -->
+                <DataGridTextColumn Binding="{Binding Computer}" Width="180" IsReadOnly="True">
                     <DataGridTextColumn.HeaderTemplate>
                         <DataTemplate>
                             <Grid>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="Computer"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimary}"
-                                               VerticalAlignment="Center"/>
-                                    <ToggleButton x:Name="ComputerFilterToggle"
-                                                  IsChecked="{Binding DataContext.IsComputerFilterPopupOpen, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
-                                                  ToolTip="Filter Computer"
-                                                  Background="Transparent"
-                                                  BorderThickness="0"
-                                                  Margin="8,0,0,0"
-                                                  Width="26"
-                                                  Height="26"
-                                                  VerticalAlignment="Center">
-                                        <Viewbox Width="16" Height="16">
-                                            <Canvas Width="24" Height="24">
-                                                <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                                      Fill="{StaticResource TextPrimary}"
-                                                      Stretch="Uniform" />
-                                            </Canvas>
-                                        </Viewbox>
-                                    </ToggleButton>
-                                </StackPanel>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                                <!-- Computer Filter Popup -->
-                                <Popup IsOpen="{Binding DataContext.IsComputerFilterPopupOpen, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
+                                <TextBlock Text="Computer"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           VerticalAlignment="Center"/>
+
+                                <ToggleButton x:Name="ComputerFilterToggle"
+                                              Grid.Column="1"
+                                              ToolTip="Computer-Filter"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Margin="8,0,0,0"
+                                              Width="26"
+                                              Height="26"
+                                              VerticalAlignment="Center"
+                                              IsChecked="{Binding DataContext.IsComputerFilterPopupOpen,
+                                                                 RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                                                 Mode=TwoWay}">
+                                    <Viewbox Width="16" Height="16">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
+                                                  Fill="{StaticResource TextPrimary}"
+                                                  Stretch="Uniform" />
+                                        </Canvas>
+                                    </Viewbox>
+                                </ToggleButton>
+
+                                <Popup IsOpen="{Binding DataContext.IsComputerFilterPopupOpen,
+                                                        RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                                        Mode=TwoWay}"
                                        PlacementTarget="{Binding ElementName=ComputerFilterToggle}"
                                        Placement="Bottom"
                                        StaysOpen="False"
@@ -358,24 +380,28 @@
                                             BorderThickness="1"
                                             CornerRadius="6"
                                             Padding="12"
-                                            Width="300">
+                                            Width="320">
                                         <StackPanel>
-                                            <!-- Select All Checkbox -->
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                                 <CheckBox Content="Alle auswählen"
                                                           IsThreeState="True"
-                                                          IsChecked="{Binding DataContext.AllComputersSelected, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"
-                                                          VerticalAlignment="Center" />
-                                                <TextBlock Text="{Binding DataContext.SelectedComputerCount, RelativeSource={RelativeSource AncestorType={x:Type Window}}, StringFormat=' ({0} ausgewählt)'}"
+                                                          IsChecked="{Binding DataContext.AllComputersSelected,
+                                                                              RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                                                              Mode=TwoWay}" />
+                                                <TextBlock Text="{Binding DataContext.SelectedComputerCount,
+                                                                          RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                                                          StringFormat=' ({0} ausgewählt)'}"
                                                            Foreground="{StaticResource TextSecondary}"
                                                            Margin="8,0,0,0"
-                                                           VerticalAlignment="Center" />
+                                                           VerticalAlignment="Center"/>
                                             </StackPanel>
 
-                                            <!-- Computer List -->
                                             <TextBlock Text="Computer" FontWeight="SemiBold" Margin="0,0,0,8" />
-                                            <ScrollViewer Height="180">
-                                                <ItemsControl ItemsSource="{Binding DataContext.Computers, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+
+                                            <ScrollViewer Height="220">
+                                                <ItemsControl ItemsSource="{Binding DataContext.Computers,
+                                                                                    RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <CheckBox Content="{Binding Name}"
@@ -385,12 +411,21 @@
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
                                             </ScrollViewer>
+
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                                                <Button Content="Löschen"
+                                                        Command="{Binding DataContext.ClearComputerFilterCommand,
+                                                                          RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                        Style="{StaticResource SecondaryButton}"
+                                                        Padding="12,6"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </Popup>
                             </Grid>
                         </DataTemplate>
                     </DataGridTextColumn.HeaderTemplate>
+
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="FontWeight" Value="SemiBold" />
@@ -399,7 +434,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- Domain Column -->
+                <!-- Domain -->
                 <DataGridTextColumn Header="Domain"
                                     Binding="{Binding Domain}"
                                     Width="140"
@@ -411,10 +446,11 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- Status Column -->
+                <!-- Status -->
                 <DataGridTemplateColumn Header="Status" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
+                            <!-- Dein Status-Badge bleibt gleich -->
                             <Border CornerRadius="12"
                                     Padding="10,5"
                                     HorizontalAlignment="Left">
@@ -440,10 +476,7 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8"
-                                             Height="8"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,6,0" />
+                                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0" />
                                     <TextBlock Text="{Binding JobResult}"
                                                FontSize="12"
                                                FontWeight="Medium"
@@ -476,34 +509,22 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <!-- Information Column -->
+                <!-- Information (rechts, füllt Rest) -->
                 <DataGridTextColumn Header="Information"
                                     Binding="{Binding Information}"
-                                    Width="200"
+                                    Width="*"
                                     IsReadOnly="True">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
-                            <Setter Property="TextWrapping" Value="NoWrap" />
                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- Last Check Column -->
-                <DataGridTextColumn Header="Last Check"
-                                    Binding="{Binding LastCheck}"
-                                    Width="120"
-                                    IsReadOnly="True">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="FontFamily" Value="Consolas" />
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+
         <!-- Status Bar -->
         <Border Grid.Row="3"
                 BorderBrush="{StaticResource BorderLight}"
@@ -516,12 +537,11 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Status Message and Loading Indicator -->
                 <StackPanel Grid.Column="0"
                             Orientation="Horizontal"
                             HorizontalAlignment="Left"
-                            Margin="531,0,0,0"
-                            Width="109">
+                            Margin="10,0,0,0"
+                            Width="630">
                     <TextBlock Text="{Binding StatusMessage}"
                                Foreground="{StaticResource TextPrimary}"
                                FontSize="13"
@@ -535,10 +555,7 @@
                             CornerRadius="12"
                             Padding="12,6">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⏳"
-                                       FontSize="12"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,6,0" />
+                            <TextBlock Text="⏳" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
                             <TextBlock Text="Lädt..."
                                        Foreground="#3B82F6"
                                        FontSize="12"
@@ -548,9 +565,7 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Connection Status -->
                 <Border Grid.Column="1"
-                        x:Name="ConnectionStatusBorder"
                         CornerRadius="12"
                         Padding="12,6">
                     <Border.Style>
@@ -570,10 +585,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse Width="8"
-                                 Height="8"
-                                 Margin="0,0,8,0"
-                                 VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
                             <Ellipse.Style>
                                 <Style TargetType="Ellipse">
                                     <Setter Property="Fill" Value="#9CA3AF" />
@@ -591,8 +603,7 @@
                                 </Style>
                             </Ellipse.Style>
                         </Ellipse>
-                        <TextBlock x:Name="ConnectionStatusText"
-                                   FontSize="12"
+                        <TextBlock FontSize="12"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center">
                             <TextBlock.Style>
@@ -620,5 +631,6 @@
                 </Border>
             </Grid>
         </Border>
+
     </Grid>
 </Window>
