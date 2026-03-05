@@ -94,12 +94,12 @@ namespace DepotService.ViewModels
             DepotsView = CollectionViewSource.GetDefaultView(Depots);
             DepotsView.Filter = FilterDepotsFunc;
 
-            SyncAllCommand = new RelayCommand(async _ => await SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
-            RefreshCommand = new RelayCommand(async _ => await LoadAsync());
-            ClearFilterCommand = new RelayCommand(async _ => { ClearFilter(); await Task.CompletedTask; });
-            ClearComputerFilterCommand = new RelayCommand(async _ => { ClearComputerFilter(); await Task.CompletedTask; });
-            RemoveLocationCommand = new RelayCommand(async location => { RemoveLocation(location as LocationItem); await Task.CompletedTask; });
-            RemoveComputerCommand = new RelayCommand(async computer => { RemoveComputer(computer as ComputerItem); await Task.CompletedTask; });
+            SyncAllCommand = new AsyncRelayCommand(_ => SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
+            RefreshCommand = new AsyncRelayCommand(_ => LoadAsync());
+            ClearFilterCommand = new RelayCommand(_ => { ClearFilter(); });
+            ClearComputerFilterCommand = new RelayCommand(_ => { ClearComputerFilter(); });
+            RemoveLocationCommand = new RelayCommand(location => { RemoveLocation(location as LocationItem); });
+            RemoveComputerCommand = new RelayCommand(computer => { RemoveComputer(computer as ComputerItem); });
         }
 
         #region Properties
@@ -223,7 +223,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(SelectedLocations));
-                    _ = FilterDepots();
+                    DepotsView.Refresh();
                 }
             }
         }
