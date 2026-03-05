@@ -177,20 +177,18 @@ VALUES (@Command, 0, @Parameters, GETDATE());";
 
             try
             {
+                await using var cmd = new SqlCommand(sql, conn, transaction);
+                cmd.Parameters.Add("@Command", SqlDbType.NVarChar, 255).Value = "StartSync";
+                var pParams = cmd.Parameters.Add("@Parameters", SqlDbType.NVarChar);
+
                 foreach (var depot in depots)
                 {
-                    var parameters = new
+                    pParams.Value = JsonSerializer.Serialize(new
                     {
                         Computer = depot.Computer,
                         Domain = depot.Domain,
                         JobName = jobName
-                    };
-
-                    var parametersJson = JsonSerializer.Serialize(parameters);
-
-                    await using var cmd = new SqlCommand(sql, conn, transaction);
-                    cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = "StartSync" });
-                    cmd.Parameters.Add(new SqlParameter("@Parameters", SqlDbType.NVarChar) { Value = parametersJson });
+                    });
 
                     await cmd.ExecuteNonQueryAsync();
                 }
