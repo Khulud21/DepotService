@@ -159,6 +159,7 @@ namespace DepotService.ViewModels
         {
             get
             {
+                if (Locations.Count == 0) return false;
                 var selected = Locations.Count(l => l.IsSelected);
                 if (selected == 0) return false;
                 if (selected == Locations.Count) return true;
@@ -184,6 +185,7 @@ namespace DepotService.ViewModels
         {
             get
             {
+                if (Computers.Count == 0) return false;
                 var selected = Computers.Count(c => c.IsSelected);
                 if (selected == 0) return false;
                 if (selected == Computers.Count) return true;
@@ -375,8 +377,8 @@ namespace DepotService.ViewModels
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                var search = SearchText.ToLower();
-                if (!depot.Computer.ToLower().Contains(search) && !depot.Domain.ToLower().Contains(search))
+                if (!depot.Computer.Contains(SearchText, StringComparison.OrdinalIgnoreCase) &&
+                    !depot.Domain.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
                     return false;
             }
 
