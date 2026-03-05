@@ -43,7 +43,7 @@ namespace DepotService.Data
         {
             var sql = @"
 SELECT
-    id,
+    id AS Id,
     Computer,
     Domain,
     LastCheck,
@@ -67,7 +67,7 @@ ORDER BY Domain, Computer;";
             {
                 result.Add(new DepotDto
                 {
-                    Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
                     Computer = reader["Computer"] as string ?? "",
                     Domain = reader["Domain"] as string ?? "",
                     LastCheck = reader["LastCheck"] != DBNull.Value
