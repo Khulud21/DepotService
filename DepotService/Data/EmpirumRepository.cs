@@ -170,6 +170,10 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             await using var transaction = conn.BeginTransaction();
 
+            var sql = @"
+INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
+VALUES (@Command, 0, @Parameters, GETDATE());";
+
             try
             {
                 foreach (var depot in depots)
@@ -182,10 +186,6 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                     };
 
                     var parametersJson = JsonSerializer.Serialize(parameters);
-
-                    var sql = @"
-INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
-VALUES (@Command, 0, @Parameters, GETDATE());";
 
                     await using var cmd = new SqlCommand(sql, conn, transaction);
                     cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = "StartSync" });
