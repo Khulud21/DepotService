@@ -47,10 +47,10 @@ namespace DepotService.ViewModels
 
             SyncAllCommand = new AsyncRelayCommand(_ => SyncSelectedAsync(), _ => DepotsView.Cast<DepotDto>().Any(d => d.IsSelected));
             RefreshCommand = new AsyncRelayCommand(_ => LoadAsync());
-            ClearFilterCommand = new RelayCommand(_ => { ClearFilter(); });
-            ClearComputerFilterCommand = new RelayCommand(_ => { ClearComputerFilter(); });
-            RemoveLocationCommand = new RelayCommand(location => { RemoveLocation(location as SelectableItem); });
-            RemoveComputerCommand = new RelayCommand(computer => { RemoveComputer(computer as SelectableItem); });
+            ClearFilterCommand = new RelayCommand(_ => ClearFilter());
+            ClearComputerFilterCommand = new RelayCommand(_ => ClearComputerFilter());
+            RemoveLocationCommand = new RelayCommand(location => RemoveLocation(location as SelectableItem));
+            RemoveComputerCommand = new RelayCommand(computer => RemoveComputer(computer as SelectableItem));
         }
 
         #region Properties
