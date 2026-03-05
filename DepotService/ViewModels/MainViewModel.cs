@@ -445,7 +445,7 @@ namespace DepotService.ViewModels
         {
             if (location != null)
             {
-                location.IsSelected = true;
+                location.IsSelected = false;
             }
         }
 
@@ -453,7 +453,7 @@ namespace DepotService.ViewModels
         {
             if (computer != null)
             {
-                computer.IsSelected = true;
+                computer.IsSelected = false;
             }
         }
 
