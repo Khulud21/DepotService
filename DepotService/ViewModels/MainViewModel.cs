@@ -45,7 +45,7 @@ namespace DepotService.ViewModels
             DepotsView = CollectionViewSource.GetDefaultView(Depots);
             DepotsView.Filter = FilterDepotsFunc;
 
-            SyncAllCommand = new AsyncRelayCommand(_ => SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
+            SyncAllCommand = new AsyncRelayCommand(_ => SyncSelectedAsync(), _ => DepotsView.Cast<DepotDto>().Any(d => d.IsSelected));
             RefreshCommand = new AsyncRelayCommand(_ => LoadAsync());
             ClearFilterCommand = new RelayCommand(_ => { ClearFilter(); });
             ClearComputerFilterCommand = new RelayCommand(_ => { ClearComputerFilter(); });
