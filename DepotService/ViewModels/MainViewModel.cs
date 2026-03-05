@@ -73,7 +73,6 @@ namespace DepotService.ViewModels
         private bool _isFilterPopupOpen = false;
         private bool _isComputerFilterPopupOpen = false;
         private bool? _selectAll = false;
-        private string _jobNameInput = "";
 
         public ObservableCollection<DepotItem> Depots { get; } = new();
         public ObservableCollection<LocationItem> Locations { get; } = new();
@@ -107,19 +106,6 @@ namespace DepotService.ViewModels
                     _searchText = value;
                     OnPropertyChanged();
                     FilterDepots();
-                }
-            }
-        }
-
-        public string JobNameInput
-        {
-            get => _jobNameInput;
-            set
-            {
-                if (_jobNameInput != value)
-                {
-                    _jobNameInput = value;
-                    OnPropertyChanged();
                 }
             }
         }
@@ -376,8 +362,7 @@ namespace DepotService.ViewModels
                     var search = SearchText.ToLower();
                     filtered = filtered.Where(d =>
                         d.Computer.ToLower().Contains(search) ||
-                        d.Domain.ToLower().Contains(search) ||
-                        (d.LastJobName?.ToLower().Contains(search) ?? false)
+                        d.Domain.ToLower().Contains(search)
                     ).ToList();
                 }
 
@@ -413,9 +398,7 @@ namespace DepotService.ViewModels
                 int createdJobs = 0;
                 foreach (var depot in toSync)
                 {
-                    var jobName = !string.IsNullOrWhiteSpace(JobNameInput)
-                        ? JobNameInput
-                        : depot.LastJobName ?? "ManualSync";
+                    var jobName = depot.LastJobName ?? "ManualSync";
 
                     var parameters = new { Computer = depot.Computer, Domain = depot.Domain, JobName = jobName };
                     await _repo.CreateJobAsync("StartSync", 0, parameters);

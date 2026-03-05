@@ -81,8 +81,6 @@ namespace DepotService.Models
         public DateTime? LastCheck { get; set; }
         public string? LastJobName { get; set; }
 
-        public string JobName => LastJobName ?? "Kein Job";
-
         public string JobResult => Status switch
         {
             "Online" => "Success",

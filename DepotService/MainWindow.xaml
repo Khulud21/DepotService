@@ -168,7 +168,6 @@
             <Grid Margin="0,0,-15,9">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="181"/>
-                    <ColumnDefinition Width="365"/>
                     <ColumnDefinition Width="Auto" MinWidth="215.183"/>
                 </Grid.ColumnDefinitions>
 
@@ -270,22 +269,8 @@
                     </ItemsControl>
                 </StackPanel>
 
-                <!-- Job Name Input -->
-                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,12,0">
-                    <TextBlock Text="Job-Name (optional)"
-                               FontSize="11"
-                               Foreground="{StaticResource TextSecondary}"
-                               Margin="0,0,0,4" />
-                    <TextBox Text="{Binding JobNameInput, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource ModernTextBox}"
-                             Width="250"
-                             Height="32"
-                             VerticalContentAlignment="Center"
-                             ToolTip="Leer lassen für automatische Job-Namen" />
-                </StackPanel>
-
                 <!-- Action Buttons -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="2,1,2,1">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="2,1,2,1">
                     <Button Content="📦 verteilen"
                             Command="{Binding SyncAllCommand}"
                             Style="{StaticResource SecondaryButton}"
@@ -409,43 +394,6 @@
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="FontWeight" Value="SemiBold" />
-                            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-
-                <!-- Job Name Column -->
-                <DataGridTextColumn Binding="{Binding JobName}"
-                                    Width="180"
-                                    IsReadOnly="True">
-                    <DataGridTextColumn.HeaderTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Job Name"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimary}"
-                                           VerticalAlignment="Center"/>
-                                <ToggleButton ToolTip="Filter Job Name"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              Margin="8,0,0,0"
-                                              Width="26"
-                                              Height="26"
-                                              VerticalAlignment="Center"
-                                              IsChecked="{Binding FilterJobNameEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}">
-                                    <Viewbox Width="16" Height="16">
-                                        <Canvas Width="24" Height="24">
-                                            <Path Data="M3,4 L21,4 L13,12 L13,19 L11,21 L11,12 L3,4 Z"
-                                                  Fill="{StaticResource TextPrimary}"
-                                                  Stretch="Uniform" />
-                                        </Canvas>
-                                    </Viewbox>
-                                </ToggleButton>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTextColumn.HeaderTemplate>
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
                         </Style>
                     </DataGridTextColumn.ElementStyle>
