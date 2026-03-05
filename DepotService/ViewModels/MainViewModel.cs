@@ -22,6 +22,7 @@ namespace DepotService.ViewModels
         private bool _isFilterPopupOpen = false;
         private bool _isComputerFilterPopupOpen = false;
         private bool? _selectAll = false;
+        private bool _suppressSelectAllUpdate;
         private string _selectedJobName = "";
 
         public ObservableCollection<DepotDto> Depots { get; } = new();
@@ -138,17 +139,18 @@ namespace DepotService.ViewModels
             get => _selectAll;
             set
             {
-                if (_selectAll != value)
+                if (_selectAll == value) return;
+                _selectAll = value;
+                OnPropertyChanged();
+
+                if (value.HasValue)
                 {
-                    _selectAll = value;
-                    OnPropertyChanged();
-                    if (value.HasValue)
-                    {
-                        foreach (DepotDto depot in DepotsView)
-                        {
-                            depot.IsSelected = value.Value;
-                        }
-                    }
+                    _suppressSelectAllUpdate = true;
+                    foreach (DepotDto depot in DepotsView)
+                        depot.IsSelected = value.Value;
+                    _suppressSelectAllUpdate = false;
+
+                    UpdateSelectAllState();
                 }
             }
         }
@@ -230,6 +232,28 @@ namespace DepotService.ViewModels
 
         #region Methods
 
+        private void UpdateSelectAllState()
+        {
+            if (_suppressSelectAllUpdate) return;
+
+            var visible = DepotsView.Cast<DepotDto>().ToList();
+            if (visible.Count == 0)
+            {
+                _selectAll = false;
+                OnPropertyChanged(nameof(SelectAll));
+                return;
+            }
+
+            int selected = visible.Count(d => d.IsSelected);
+            bool? newValue = selected == 0 ? false : selected == visible.Count ? true : (bool?)null;
+
+            if (_selectAll != newValue)
+            {
+                _selectAll = newValue;
+                OnPropertyChanged(nameof(SelectAll));
+            }
+        }
+
         public async Task InitializeAsync()
         {
             await TestConnectionAsync();
@@ -310,10 +334,19 @@ namespace DepotService.ViewModels
                 Depots.Clear();
                 foreach (var depot in allDepots)
                 {
+                    depot.PropertyChanged += (_, e) =>
+                    {
+                        if (e.PropertyName == nameof(DepotDto.IsSelected))
+                        {
+                            UpdateSelectAllState();
+                            CommandManager.InvalidateRequerySuggested();
+                        }
+                    };
                     Depots.Add(depot);
                 }
 
                 DepotsView.Refresh();
+                UpdateSelectAllState();
                 StatusMessage = $"{Depots.Count} Depots geladen";
             }
             catch (Exception ex)
