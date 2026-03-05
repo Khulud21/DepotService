@@ -140,8 +140,8 @@ ORDER BY JobName;";
             var parametersJson = JsonSerializer.Serialize(parameters);
 
             var sql = @"
-INSERT INTO dbo.UEMJobs (Command, Parameters)
-VALUES (@Command, @Parameters);
+INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
+VALUES (@Command, 0, @Parameters, GETDATE());
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             await using var conn = new SqlConnection(_connectionString);
@@ -184,8 +184,8 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                     var parametersJson = JsonSerializer.Serialize(parameters);
 
                     var sql = @"
-INSERT INTO dbo.UEMJobs (Command, Parameters)
-VALUES (@Command, @Parameters);";
+INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
+VALUES (@Command, 0, @Parameters, GETDATE());";
 
                     await using var cmd = new SqlCommand(sql, conn, transaction);
                     cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = "StartSync" });
