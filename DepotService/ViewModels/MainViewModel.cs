@@ -301,7 +301,7 @@ namespace DepotService.ViewModels
                 Locations.Clear();
                 foreach (var loc in locations)
                 {
-                    var locationItem = new LocationItem { Name = loc };
+                    var locationItem = new LocationItem { Name = loc, IsSelected = true };
                     locationItem.PropertyChanged += (s, e) =>
                     {
                         if (e.PropertyName == nameof(LocationItem.IsSelected))
@@ -319,7 +319,7 @@ namespace DepotService.ViewModels
                 Computers.Clear();
                 foreach (var comp in computers)
                 {
-                    var computerItem = new ComputerItem { Name = comp };
+                    var computerItem = new ComputerItem { Name = comp, IsSelected = true };
                     computerItem.PropertyChanged += (s, e) =>
                     {
                         if (e.PropertyName == nameof(ComputerItem.IsSelected))
@@ -416,11 +416,11 @@ namespace DepotService.ViewModels
         {
             foreach (var location in Locations)
             {
-                location.IsSelected = false;
+                location.IsSelected = true;
             }
             foreach (var computer in Computers)
             {
-                computer.IsSelected = false;
+                computer.IsSelected = true;
             }
             SearchText = "";
             OnPropertyChanged(nameof(AllLocationsSelected));
@@ -435,7 +435,7 @@ namespace DepotService.ViewModels
         {
             if (location != null)
             {
-                location.IsSelected = false;
+                location.IsSelected = true;
             }
         }
 
@@ -443,7 +443,7 @@ namespace DepotService.ViewModels
         {
             if (computer != null)
             {
-                computer.IsSelected = false;
+                computer.IsSelected = true;
             }
         }
 
@@ -451,7 +451,7 @@ namespace DepotService.ViewModels
         {
             foreach (var computer in Computers)
             {
-                computer.IsSelected = false;
+                computer.IsSelected = true;
             }
             OnPropertyChanged(nameof(AllComputersSelected));
             OnPropertyChanged(nameof(SelectedComputerCount));
