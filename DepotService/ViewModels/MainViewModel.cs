@@ -65,6 +65,7 @@ namespace DepotService.ViewModels
                     _searchText = value;
                     OnPropertyChanged();
                     DepotsView.Refresh();
+                    UpdateSelectAllState();
                 }
             }
         }
@@ -177,6 +178,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(SelectedLocations));
                     DepotsView.Refresh();
+                    UpdateSelectAllState();
                 }
             }
         }
@@ -203,6 +205,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged(nameof(SelectedComputerCount));
                     OnPropertyChanged(nameof(SelectedComputers));
                     DepotsView.Refresh();
+                    UpdateSelectAllState();
                 }
             }
         }
@@ -310,6 +313,7 @@ namespace DepotService.ViewModels
                             OnPropertyChanged(nameof(SelectedCount));
                             OnPropertyChanged(nameof(SelectedLocations));
                             DepotsView.Refresh();
+                            UpdateSelectAllState();
                         }
                     };
                     Locations.Add(locationItem);
@@ -328,6 +332,7 @@ namespace DepotService.ViewModels
                             OnPropertyChanged(nameof(SelectedComputerCount));
                             OnPropertyChanged(nameof(SelectedComputers));
                             DepotsView.Refresh();
+                            UpdateSelectAllState();
                         }
                     };
                     Computers.Add(computerItem);
