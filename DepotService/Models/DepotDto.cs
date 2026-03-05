@@ -26,11 +26,13 @@ namespace DepotService.Models
                     OnPropertyChanged(nameof(StatusText));
                     OnPropertyChanged(nameof(StatusIcon));
                     OnPropertyChanged(nameof(StatusDisplay));
+                    OnPropertyChanged(nameof(JobResult));
                 }
             }
         }
 
         public string? Info { get; set; }
+        public string? Information => Info;
         public DateTime? CreatedTime { get; set; }
         public string? DepotSyncId { get; set; }
         public string? LastJobName { get; set; }
@@ -67,6 +69,15 @@ namespace DepotService.Models
         };
 
         public string StatusDisplay => $"{StatusIcon} {StatusText}";
+
+        public string JobResult => Status switch
+        {
+            0 => "Pending",
+            1 => "Running",
+            2 => "Success",
+            3 => "Error",
+            _ => "Unknown"
+        };
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

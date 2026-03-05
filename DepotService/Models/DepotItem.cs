@@ -9,7 +9,7 @@ namespace DepotService.Models
         private bool _isSelected;
         private string _computer = "";
         private string _domain = "";
-        private string _status = "";
+        private int _status;
         private string _information = "";
 
         public string Computer
@@ -38,7 +38,11 @@ namespace DepotService.Models
             }
         }
 
-        public string Status
+        /// <summary>
+        /// Status aus dbo.UEMDepotServerStatus.Status (INT)
+        /// 0 = Waiting, 1 = Running, 2 = Success, 3 = Error
+        /// </summary>
+        public int Status
         {
             get => _status;
             set
@@ -80,22 +84,23 @@ namespace DepotService.Models
         }
 
         public DateTime? LastCheck { get; set; }
-        public string? LastJobName { get; set; }
         public string? Info { get; set; }
 
         public string JobResult => Status switch
         {
-            "Online" => "Success",
-            "Offline" => "Error",
-            _ => "Pending"
+            0 => "Pending",
+            1 => "Running",
+            2 => "Success",
+            3 => "Error",
+            _ => "Unknown"
         };
 
         public string StatusDisplay => Status switch
         {
-            "Online" => "✅ Online",
-            "Offline" => "❌ Offline",
-            "Waiting" => "⏳ Waiting",
-            "Running" => "🔄 Running",
+            0 => "⏳ Waiting",
+            1 => "🔄 Running",
+            2 => "✅ Success",
+            3 => "❌ Error",
             _ => "❔ Unknown"
         };
 
