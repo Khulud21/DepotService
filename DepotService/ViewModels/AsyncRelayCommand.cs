@@ -39,6 +39,11 @@ public class AsyncRelayCommand : ICommand
         {
             await _execute(parameter);
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"AsyncRelayCommand Exception: {ex}");
+            // Exception wird nicht weitergeworfen - ViewModel sollte eigene Fehlerbehandlung haben
+        }
         finally
         {
             _isExecuting = false;
