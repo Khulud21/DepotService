@@ -295,7 +295,9 @@ namespace DepotService.ViewModels
                 IsLoading = true;
                 StatusMessage = "Lade Depots...";
 
-                var locations = await _repo.GetLocationsAsync();
+                var allDepots = await _repo.GetDepotsAsync();
+
+                var locations = allDepots.Select(d => d.Domain).Distinct().OrderBy(x => x).ToList();
                 Locations.Clear();
                 foreach (var loc in locations)
                 {
@@ -313,7 +315,6 @@ namespace DepotService.ViewModels
                     Locations.Add(locationItem);
                 }
 
-                var allDepots = await _repo.GetDepotsAsync();
                 var computers = allDepots.Select(d => d.Computer).Distinct().OrderBy(c => c).ToList();
                 Computers.Clear();
                 foreach (var comp in computers)
@@ -370,14 +371,15 @@ namespace DepotService.ViewModels
         {
             try
             {
-                var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToList();
+                var selectedLocations = Locations.Where(l => l.IsSelected).Select(l => l.Name).ToHashSet();
+                var allDepots = await _repo.GetDepotsAsync();
 
-                var allDepots = selectedLocations.Any()
-                    ? (await Task.WhenAll(selectedLocations.Select(loc => _repo.GetDepotsAsync(loc)))).SelectMany(d => d).ToList()
-                    : await _repo.GetDepotsAsync();
+                var filteredDepots = selectedLocations.Any()
+                    ? allDepots.Where(d => selectedLocations.Contains(d.Domain)).ToList()
+                    : allDepots;
 
                 Depots.Clear();
-                foreach (var depot in allDepots)
+                foreach (var depot in filteredDepots)
                 {
                     Depots.Add(depot);
                 }
@@ -403,21 +405,16 @@ namespace DepotService.ViewModels
                     return;
                 }
 
+                var jobNames = await _repo.GetJobNamesAsync();
+                var selectedJobName = jobNames.FirstOrDefault() ?? "ManualSync";
+
                 IsLoading = true;
                 StatusMessage = $"Erstelle {toSync.Count} Jobs...";
 
-                int createdJobs = 0;
-                foreach (var depot in toSync)
-                {
-                    var jobName = depot.LastJobName ?? "ManualSync";
+                await _repo.EnqueueStartSyncForManyAsync(toSync, selectedJobName);
 
-                    var parameters = new { Computer = depot.Computer, Domain = depot.Domain, JobName = jobName };
-                    await _repo.CreateJobAsync("StartSync", 0, parameters);
-                    createdJobs++;
-                }
-
-                StatusMessage = $"{createdJobs} Jobs erfolgreich erstellt";
-                MessageBox.Show($"{createdJobs} Sync-Jobs wurden erfolgreich erstellt und werden von Empirum verarbeitet.",
+                StatusMessage = $"{toSync.Count} Jobs erfolgreich erstellt";
+                MessageBox.Show($"{toSync.Count} Sync-Jobs wurden erfolgreich erstellt und werden von Empirum verarbeitet.",
                     "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
