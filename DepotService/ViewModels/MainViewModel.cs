@@ -277,9 +277,9 @@ namespace DepotService.ViewModels
         {
             try
             {
-                var result = await _repo.TestConnectionAsync();
-                ConnectionState = result.Success ? "Connected" : "Disconnected";
-                StatusMessage = result.Message;
+                var (success, message) = await _repo.TestConnectionAsync();
+                ConnectionState = success ? "Connected" : "Disconnected";
+                StatusMessage = message;
             }
             catch (Exception ex)
             {
