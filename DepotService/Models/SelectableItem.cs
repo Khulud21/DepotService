@@ -5,7 +5,7 @@ namespace DepotService.Models
 {
     public class SelectableItem : INotifyPropertyChanged
     {
-        private string _name;
+        private string _name ="";
         private bool _isSelected;
 
         public SelectableItem(string name, bool isSelected = true)
