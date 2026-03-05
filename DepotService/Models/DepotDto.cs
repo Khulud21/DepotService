@@ -46,7 +46,7 @@ namespace DepotService.Models
             }
         }
 
-        public string? Information => Info;
+        public string Information => Info ?? "";
         public DateTime? CreatedTime { get; set; }
         public string? DepotSyncId { get; set; }
         public string? LastJobName { get; set; }
