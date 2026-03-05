@@ -21,25 +21,58 @@ namespace DepotService.Data
         /// <summary>
         /// Testet die Datenbankverbindung
         /// </summary>
-        public async Task<bool> TestConnectionAsync()
+        public async Task<(bool Success, string Message)> TestConnectionAsync()
         {
             try
             {
                 await using var conn = new SqlConnection(_connectionString);
                 await conn.OpenAsync();
-                return true;
+                return (true, "Verbindung erfolgreich");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Database connection test failed: {ex.Message}");
-                return false;
+                return (false, $"Verbindung fehlgeschlagen: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Lädt alle verfügbaren Standorte (Domains)
+        /// </summary>
+        public async Task<List<string>> GetLocationsAsync()
+        {
+            var sql = @"
+SELECT DISTINCT Domain
+FROM dbo.UEMDepotServerStatus
+WHERE DepotSyncId IS NOT NULL
+  AND Domain IS NOT NULL
+  AND Domain <> ''
+ORDER BY Domain;";
+
+            var result = new List<string>();
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new SqlCommand(sql, conn);
+            await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+
+            while (await reader.ReadAsync())
+            {
+                var domain = reader["Domain"] as string;
+                if (!string.IsNullOrWhiteSpace(domain))
+                {
+                    result.Add(domain);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
         /// Lädt alle Depot-Server, die den neuen Sync unterstützen (DepotSyncId IS NOT NULL)
         /// </summary>
-        public async Task<List<DepotDto>> GetDepotsAsync()
+        public async Task<List<DepotDto>> GetDepotsAsync(string? location = null)
         {
             var sql = @"
 SELECT
@@ -52,8 +85,14 @@ SELECT
     CreatedTime,
     DepotSyncId
 FROM dbo.UEMDepotServerStatus
-WHERE DepotSyncId IS NOT NULL
-ORDER BY Domain, Computer;";
+WHERE DepotSyncId IS NOT NULL";
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                sql += " AND Domain = @Domain";
+            }
+
+            sql += " ORDER BY Domain, Computer;";
 
             var result = new List<DepotDto>();
 
@@ -61,6 +100,12 @@ ORDER BY Domain, Computer;";
             await conn.OpenAsync();
 
             await using var cmd = new SqlCommand(sql, conn);
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                cmd.Parameters.Add(new SqlParameter("@Domain", SqlDbType.NVarChar, 255) { Value = location });
+            }
+
             await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
 
             while (await reader.ReadAsync())
@@ -200,6 +245,30 @@ VALUES (@Command, 0, @Parameters, GETDATE());";
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Erstellt einen Job in der Queue
+        /// </summary>
+        public async Task<int> CreateJobAsync(string command, int status, object parameters)
+        {
+            var parametersJson = JsonSerializer.Serialize(parameters);
+
+            var sql = @"
+INSERT INTO dbo.UEMJobs (Command, Status, Parameters, InsertTimeStamp)
+VALUES (@Command, @Status, @Parameters, GETDATE());
+SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = command });
+            cmd.Parameters.Add(new SqlParameter("@Status", SqlDbType.Int) { Value = status });
+            cmd.Parameters.Add(new SqlParameter("@Parameters", SqlDbType.NVarChar) { Value = parametersJson });
+
+            var jobId = (int)await cmd.ExecuteScalarAsync();
+            return jobId;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace DepotService.ViewModels
 
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly SqlRepository _repo;
+        private readonly EmpirumRepository _repo;
         private string _searchText = "";
         private string _statusMessage = "Bereit";
         private bool _isLoading = false;
@@ -74,7 +74,7 @@ namespace DepotService.ViewModels
         private bool _isComputerFilterPopupOpen = false;
         private bool? _selectAll = false;
 
-        public ObservableCollection<DepotItem> Depots { get; } = new();
+        public ObservableCollection<DepotDto> Depots { get; } = new();
         public ObservableCollection<LocationItem> Locations { get; } = new();
         public ObservableCollection<ComputerItem> Computers { get; } = new();
 
@@ -85,7 +85,7 @@ namespace DepotService.ViewModels
         public ICommand RemoveLocationCommand { get; }
         public ICommand RemoveComputerCommand { get; }
 
-        public MainViewModel(SqlRepository repo)
+        public MainViewModel(EmpirumRepository repo)
         {
             _repo = repo;
             SyncAllCommand = new RelayCommand(async _ => await SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));

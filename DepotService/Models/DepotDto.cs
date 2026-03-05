@@ -33,6 +33,7 @@ namespace DepotService.Models
         public string? Info { get; set; }
         public DateTime? CreatedTime { get; set; }
         public string? DepotSyncId { get; set; }
+        public string? LastJobName { get; set; }
 
         public bool IsSelected
         {
