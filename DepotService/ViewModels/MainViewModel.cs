@@ -74,11 +74,13 @@ namespace DepotService.ViewModels
         private bool _isFilterPopupOpen = false;
         private bool _isComputerFilterPopupOpen = false;
         private bool? _selectAll = false;
+        private string _selectedJobName = "";
 
         public ObservableCollection<DepotDto> Depots { get; } = new();
         public ICollectionView DepotsView { get; private set; }
         public ObservableCollection<LocationItem> Locations { get; } = new();
         public ObservableCollection<ComputerItem> Computers { get; } = new();
+        public ObservableCollection<string> JobNames { get; } = new();
 
         public ICommand SyncAllCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -263,6 +265,19 @@ namespace DepotService.ViewModels
         public ObservableCollection<ComputerItem> SelectedComputers =>
             new ObservableCollection<ComputerItem>(Computers.Where(c => c.IsSelected));
 
+        public string SelectedJobName
+        {
+            get => _selectedJobName;
+            set
+            {
+                if (_selectedJobName != value)
+                {
+                    _selectedJobName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -296,6 +311,17 @@ namespace DepotService.ViewModels
                 StatusMessage = "Lade Depots...";
 
                 var allDepots = await _repo.GetDepotsAsync();
+
+                var jobNames = await _repo.GetJobNamesAsync();
+                JobNames.Clear();
+                foreach (var jobName in jobNames.OrderBy(j => j))
+                {
+                    JobNames.Add(jobName);
+                }
+                if (JobNames.Any() && string.IsNullOrEmpty(SelectedJobName))
+                {
+                    SelectedJobName = JobNames.First();
+                }
 
                 var locations = allDepots.Select(d => d.Domain).Distinct().OrderBy(x => x).ToList();
                 Locations.Clear();
@@ -389,13 +415,16 @@ namespace DepotService.ViewModels
                     return;
                 }
 
-                var jobNames = await _repo.GetJobNamesAsync();
-                var selectedJobName = jobNames.FirstOrDefault() ?? "ManualSync";
+                if (string.IsNullOrEmpty(SelectedJobName))
+                {
+                    MessageBox.Show("Bitte wählen Sie einen Job aus.", "Kein Job ausgewählt", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
 
                 IsLoading = true;
                 StatusMessage = $"Erstelle {toSync.Count} Jobs...";
 
-                await _repo.EnqueueStartSyncForManyAsync(toSync, selectedJobName);
+                await _repo.EnqueueStartSyncForManyAsync(toSync, SelectedJobName);
 
                 StatusMessage = $"{toSync.Count} Jobs erfolgreich erstellt";
                 MessageBox.Show($"{toSync.Count} Sync-Jobs wurden erfolgreich erstellt und werden von Empirum verarbeitet.",
