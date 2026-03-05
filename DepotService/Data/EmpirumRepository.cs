@@ -29,8 +29,9 @@ namespace DepotService.Data
                 await conn.OpenAsync();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Database connection test failed: {ex.Message}");
                 return false;
             }
         }
