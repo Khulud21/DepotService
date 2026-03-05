@@ -144,7 +144,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged();
                     if (value.HasValue)
                     {
-                        foreach (var depot in Depots)
+                        foreach (DepotDto depot in DepotsView)
                         {
                             depot.IsSelected = value.Value;
                         }
