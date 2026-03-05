@@ -8,7 +8,7 @@ namespace DepotService.Models
         public string Computer { get; set; } = "";
         public string Domain { get; set; } = "";
         public DateTime? LastCheck { get; set; }
-        public string Status { get; set; } = "";
+        public int Status { get; set; }
         public string? Info { get; set; }
         public DateTime? CreatedTime { get; set; }
         public int? DepotSyncId { get; set; }

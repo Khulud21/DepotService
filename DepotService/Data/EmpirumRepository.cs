@@ -71,7 +71,7 @@ ORDER BY Domain, Computer;";
                     LastCheck = reader["LastCheck"] != DBNull.Value
                         ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("LastCheck"))
                         : null,
-                    Status = reader["Status"] as string ?? "",
+                    Status = reader.GetInt32(reader.GetOrdinal("Status")),
                     Info = reader["Info"] as string,
                     CreatedTime = reader["CreatedTime"] != DBNull.Value
                         ? (DateTime?)reader.GetDateTime(reader.GetOrdinal("CreatedTime"))
