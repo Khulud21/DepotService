@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -150,6 +151,54 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             var jobId = (int)await cmd.ExecuteScalarAsync();
             return jobId;
+        }
+
+        /// <summary>
+        /// Erstellt mehrere StartSync-Jobs in der Queue (Batch-Operation)
+        /// </summary>
+        public async Task EnqueueStartSyncForManyAsync(IEnumerable<DepotDto> depots, string jobName)
+        {
+            if (depots == null || !depots.Any())
+                throw new ArgumentException("Depots list cannot be empty", nameof(depots));
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("JobName cannot be empty", nameof(jobName));
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var transaction = conn.BeginTransaction();
+
+            try
+            {
+                foreach (var depot in depots)
+                {
+                    var parameters = new
+                    {
+                        Computer = depot.Computer,
+                        Domain = depot.Domain,
+                        JobName = jobName
+                    };
+
+                    var parametersJson = JsonSerializer.Serialize(parameters);
+
+                    var sql = @"
+INSERT INTO dbo.UEMJobs (Command, Parameters)
+VALUES (@Command, @Parameters);";
+
+                    await using var cmd = new SqlCommand(sql, conn, transaction);
+                    cmd.Parameters.Add(new SqlParameter("@Command", SqlDbType.NVarChar, 255) { Value = "StartSync" });
+                    cmd.Parameters.Add(new SqlParameter("@Parameters", SqlDbType.NVarChar) { Value = parametersJson });
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
