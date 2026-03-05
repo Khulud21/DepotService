@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using DepotService.Data;
 using DepotService.Models;
@@ -75,6 +76,7 @@ namespace DepotService.ViewModels
         private bool? _selectAll = false;
 
         public ObservableCollection<DepotDto> Depots { get; } = new();
+        public ICollectionView DepotsView { get; private set; }
         public ObservableCollection<LocationItem> Locations { get; } = new();
         public ObservableCollection<ComputerItem> Computers { get; } = new();
 
@@ -88,6 +90,10 @@ namespace DepotService.ViewModels
         public MainViewModel(EmpirumRepository repo)
         {
             _repo = repo;
+
+            DepotsView = CollectionViewSource.GetDefaultView(Depots);
+            DepotsView.Filter = FilterDepotsFunc;
+
             SyncAllCommand = new RelayCommand(async _ => await SyncSelectedAsync(), _ => Depots.Any(d => d.IsSelected));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearFilterCommand = new RelayCommand(async _ => { ClearFilter(); await Task.CompletedTask; });
@@ -107,7 +113,7 @@ namespace DepotService.ViewModels
                 {
                     _searchText = value;
                     OnPropertyChanged();
-                    FilterDepots();
+                    DepotsView.Refresh();
                 }
             }
         }
@@ -217,7 +223,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(SelectedLocations));
-                    FilterDepots();
+                    _ = FilterDepots();
                 }
             }
         }
@@ -242,7 +248,7 @@ namespace DepotService.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedComputerCount));
                     OnPropertyChanged(nameof(SelectedComputers));
-                    FilterDepots();
+                    DepotsView.Refresh();
                 }
             }
         }
@@ -301,7 +307,7 @@ namespace DepotService.ViewModels
                             OnPropertyChanged(nameof(AllLocationsSelected));
                             OnPropertyChanged(nameof(SelectedCount));
                             OnPropertyChanged(nameof(SelectedLocations));
-                            FilterDepots();
+                            _ = FilterDepots();
                         }
                     };
                     Locations.Add(locationItem);
@@ -320,7 +326,7 @@ namespace DepotService.ViewModels
                             OnPropertyChanged(nameof(AllComputersSelected));
                             OnPropertyChanged(nameof(SelectedComputerCount));
                             OnPropertyChanged(nameof(SelectedComputers));
-                            FilterDepots();
+                            DepotsView.Refresh();
                         }
                     };
                     Computers.Add(computerItem);
@@ -341,6 +347,25 @@ namespace DepotService.ViewModels
             }
         }
 
+        private bool FilterDepotsFunc(object obj)
+        {
+            if (obj is not DepotDto depot)
+                return false;
+
+            var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToList();
+            if (selectedComputers.Any() && !selectedComputers.Contains(depot.Computer))
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var search = SearchText.ToLower();
+                if (!depot.Computer.ToLower().Contains(search) && !depot.Domain.ToLower().Contains(search))
+                    return false;
+            }
+
+            return true;
+        }
+
         private async Task FilterDepots()
         {
             try
@@ -351,29 +376,13 @@ namespace DepotService.ViewModels
                     ? (await Task.WhenAll(selectedLocations.Select(loc => _repo.GetDepotsAsync(loc)))).SelectMany(d => d).ToList()
                     : await _repo.GetDepotsAsync();
 
-                var filtered = allDepots;
-
-                var selectedComputers = Computers.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                if (selectedComputers.Any())
-                {
-                    filtered = filtered.Where(d => selectedComputers.Contains(d.Computer)).ToList();
-                }
-
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                {
-                    var search = SearchText.ToLower();
-                    filtered = filtered.Where(d =>
-                        d.Computer.ToLower().Contains(search) ||
-                        d.Domain.ToLower().Contains(search)
-                    ).ToList();
-                }
-
                 Depots.Clear();
-                foreach (var depot in filtered)
+                foreach (var depot in allDepots)
                 {
                     Depots.Add(depot);
                 }
 
+                DepotsView.Refresh();
                 OnPropertyChanged(nameof(Depots));
             }
             catch (Exception ex)
